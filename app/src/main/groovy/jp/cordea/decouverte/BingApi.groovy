@@ -16,7 +16,7 @@ class BingApi {
         void onFailure(e)
     }
 
-    static void searchImage(context, listener) {
+    static void searchImage(context, q, listener) {
         def gson = new Gson()
         if (BuildConfig.IS_MOCK) {
             def json = context.resources.openRawResource(R.raw.response).text
@@ -24,19 +24,20 @@ class BingApi {
             listener.onResponse(root)
             return
         }
-        client.newCall(getBuilder("nature").build())
-                .enqueue(new Callback() {
-            @Override
-            void onFailure(Call call, IOException e) {
-                listener.onFailure(e)
-            }
+        client.newCall(getBuilder(q).build())
+                .enqueue(
+                new Callback() {
+                    @Override
+                    void onFailure(Call call, IOException e) {
+                        listener.onFailure(e)
+                    }
 
-            @Override
-            void onResponse(Call call, Response response) throws IOException {
-                def root = gson.fromJson(response.body().string(), Root.class)
-                listener.onResponse(root)
-            }
-        })
+                    @Override
+                    void onResponse(Call call, Response response) throws IOException {
+                        def root = gson.fromJson(response.body().string(), Root.class)
+                        listener.onResponse(root)
+                    }
+                })
     }
 
     private static Request.Builder getBuilder(q) {
